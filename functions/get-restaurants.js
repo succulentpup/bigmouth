@@ -14,7 +14,6 @@ async function getRestaurants(topN) {
 
 module.exports.handler = async event => {
     const restaurants = await getRestaurants(topN);
-    console.log('restaurants:', restaurants);
     return {
         statusCode: 200,
         body: JSON.stringify(restaurants.Items)

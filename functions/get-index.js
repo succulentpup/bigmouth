@@ -13,13 +13,15 @@ const cognitoClientId = process.env.cognitoClientId;
 let html;
 const days = ['Sunday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-function loadHtml() {
+async function loadHtml() {
     if (html === undefined) {
-        fs.readFile('static/index.html', 'utf8')
-            .then(data => html = data)
-            .catch(err => html = new Error('something went wrong reading the file'))
+        html = await (new Promise((resolve, reject) => {
+            fs.readFile('static/index.html', 'utf8')
+                .then(data => resolve(data))
+                .catch(err => reject(err));
+        }));
     }
-    return Promise.resolve(html);
+    return html;
 }
 
 async function getRestaurants() {
@@ -30,13 +32,16 @@ async function getRestaurants() {
     };
     AWS4.sign(opts);
 
-    const restaurants = await  http
+    const httpReq = http
         .get(restaurantsApiRoot)
         .set('Host', opts.headers['Host'])
         .set('X-Amz-Date', opts.headers['X-Amz-Date'])
-        .set('Authorization', opts.headers['Authorization'])
-        .set('X-Amz-Security-Token', opts.headers['X-Amz-Security-Token']);
-    return restaurants.body;
+        .set('Authorization', opts.headers['Authorization']);
+    if (opts.headers['X-Amz-Security-Token']) {
+        httpReq
+            .set('X-Amz-Security-Token', opts.headers['X-Amz-Security-Token']);
+    }
+    return (await httpReq).body;
 }
 
 module.exports.handler = async event => {
@@ -51,8 +56,7 @@ module.exports.handler = async event => {
         cognitoClientId,
         searchUrl: `${restaurantsApiRoot}/search`
     };
-    const  html = Mustache.render(template, view);
-
+    const html = Mustache.render(template, view);
     return {
         statusCode: 200,
         body: html,
