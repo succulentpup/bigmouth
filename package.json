@@ -9,7 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.535.0",
     "aws4": "^1.8.0",
     "bluebird": "^3.5.5",
     "co": "^4.6.0",
@@ -19,5 +18,12 @@
     "superagent": "^5.1.0",
     "superagent-promise": "^1.1.0",
     "url": "^0.11.0"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.536.0",
+    "awscred": "^1.4.2",
+    "chai": "^4.2.0",
+    "lodash": "^4.17.15",
+    "mocha": "^6.2.0"
   }
 }
