@@ -13,6 +13,12 @@ provider:
     - Effect: Allow
       Action: execute-api:invoke
       Resource: arn:aws:execute-api:#{AWS::Region}:#{AWS::AccountId}:*/*/GET/restaurants
+    - Effect: Allow
+      Action: kinesis:PutRecord
+      Resource: arn:aws:kinesis:#{AWS::Region}:#{AWS::AccountId}:stream/order-events
+    - Effect: Allow
+      Action: sns:Publish
+      Resource: arn:aws:sns:#{AWS::Region}:#{AWS::AccountId}:restaurant-notification
 
 functions:
   homepage:
@@ -23,8 +29,10 @@ functions:
           method: get
     environment:
       restaurants_api: https://1tg2d7k11l.execute-api.us-east-1.amazonaws.com/dev/restaurants
+      orders_api: https://1tg2d7k11l.execute-api.us-east-1.amazonaws.com/dev/orders
       cognitoUserPoolId: us-east-1_hq4CxSJLm
       cognitoClientId: 171t3j4grbk8it2u6j65itchb7
+      cognitoServerId: 45l0hiah5ap6b09rojmp4c3h1v
   restaurants:
     handler: functions/get-restaurants.handler
     events:
@@ -41,9 +49,28 @@ functions:
           path: /restaurants/search
           method: post
           authorizer:
-            arn:aws:cognito-idp:us-east-1:697892281854:userpool/us-east-1_hq4CxSJLm
+            arn:aws:cognito-idp:#{AWS::Region}:#{AWS::AccountId}:userpool/us-east-1_hq4CxSJLm
     environment:
       restaurants_table: restaurants
+  place-order:
+    handler: functions/place-order.handler
+    events:
+      - http:
+          path: /orders
+          method: post
+          authorizer:
+            arn:aws:cognito-idp:#{AWS::Region}:#{AWS::AccountId}:userpool/us-east-1_hq4CxSJLm
+    environment:
+      order_events_stream: order-events
+  notify-restaurant:
+    handler: functions/notify-restaurant.handler
+    events:
+      - stream:
+          arn: arn:aws:kinesis:#{AWS::Region}:#{AWS::AccountId}:stream/order-events
+    environment:
+      order_events_stream: order-events
+      restaurant_notification_topic: arn:aws:sns:#{AWS::Region}:#{AWS::AccountId}:restaurant-notification
+
 
 resources:
   Resources:
@@ -60,3 +87,15 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
+
+    orderEventsStream:
+      Type: AWS::Kinesis::Stream
+      Properties:
+        Name: order-events
+        ShardCount: 1
+
+    restaurantNotification:
+      Type: AWS::SNS::Topic
+      Properties:
+        DisplayName: restaurant-notification
+        TopicName: restaurant-notification

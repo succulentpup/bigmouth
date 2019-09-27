@@ -6,6 +6,7 @@ const AWS4 = require('aws4');
 const URL = require('url');
 
 const restaurantsApiRoot = process.env.restaurants_api;
+const ordersApiRoot = process.env.orders_api;
 const awsRegion = process.env.awsRegion;
 const cognitoUserPoolId = process.env.cognitoUserPoolId;
 const cognitoClientId = process.env.cognitoClientId;
@@ -54,7 +55,8 @@ module.exports.handler = async event => {
         awsRegion,
         cognitoUserPoolId,
         cognitoClientId,
-        searchUrl: `${restaurantsApiRoot}/search`
+        searchUrl: `${restaurantsApiRoot}/search`,
+        placeOrderUrl: `${ordersApiRoot}`
     };
     const html = Mustache.render(template, view);
     return {
