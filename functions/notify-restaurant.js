@@ -1,4 +1,6 @@
 const AWS = require('aws-sdk');
+const Chance = require('chance').Chance();
+
 const GetRecords = require('../lib/kinesis').getRecords;
 
 const Kinesis = new AWS.Kinesis();
@@ -9,7 +11,9 @@ const retrySnsTopicArn = process.env.restaurant_retry_notification_topic;
 const streamName = process.env.order_events_stream;
 
 async function notify(order) {
-    throw new Error('boom');
+    if (Chance.bool({likelihood: 25})){ // 25% chances to failure
+        throw new Error("boom");
+    }
     const pubReq = {
         Message: JSON.stringify(order),
         TopicArn: snsTopicArn
@@ -40,6 +44,7 @@ module.exports.handler = async event => {
                 Message: JSON.stringify(order),
                 TopicArn: retrySnsTopicArn
             };
+            console.log('sending notification for retry purpose');
             await Sns.publish(pubReq).promise();
             console.log(`retrying this order: ${JSON.stringify(order)}`);
         }
