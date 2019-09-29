@@ -30,8 +30,8 @@ functions:
           path: /
           method: get
     environment:
-      restaurants_api: https://1tg2d7k11l.execute-api.us-east-1.amazonaws.com/dev/restaurants
-      orders_api: https://1tg2d7k11l.execute-api.us-east-1.amazonaws.com/dev/orders
+      restaurants_api: https://19gjm734ok.execute-api.us-east-1.amazonaws.com/dev/restaurants
+      orders_api: https://19gjm734ok.execute-api.us-east-1.amazonaws.com/dev/orders
       cognitoUserPoolId: us-east-1_hq4CxSJLm
       cognitoClientId: 171t3j4grbk8it2u6j65itchb7
       cognitoServerId: 45l0hiah5ap6b09rojmp4c3h1v
