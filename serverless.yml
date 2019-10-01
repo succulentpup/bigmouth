@@ -46,7 +46,7 @@ functions:
           path: /restaurants/search
           method: post
           authorizer:
-            arn:aws:cognito-idp:#{AWS::Region}:#{AWS::AccountId}:userpool/us-east-1_hq4CxSJLm
+            arn:aws:cognito-idp:#{AWS::Region}:#{AWS::AccountId}:userpool/${ssm:/bigmouth/dev/cognitoUserPoolId~true}
     environment:
       restaurants_table: restaurants
     iamRoleStatements:
@@ -63,7 +63,7 @@ functions:
       - http:
           path: /orders
           method: post
-          authorizer: arn:aws:cognito-idp:#{AWS::Region}:#{AWS::AccountId}:userpool/us-east-1_hq4CxSJLm
+          authorizer: arn:aws:cognito-idp:#{AWS::Region}:#{AWS::AccountId}:userpool/${ssm:/bigmouth/dev/cognitoUserPoolId~true}
     environment:
       order_events_stream: order-events
     iamRoleStatements:
